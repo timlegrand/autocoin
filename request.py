@@ -21,16 +21,18 @@ def url_path_join(*parts):
     return path
 
 
+resources = {
+    'server time': ('Time', 'public'),
+    'open orders': ('OpenOrders', 'private'),
+}
+
+
 def request(name):
-    private_api = False
-    path = ''
-    if name == 'open orders':
-        path = 'OpenOrders'
-        private_api = True
-    elif name == 'server time':
-        path = 'Time'
-    else:
-        raise NotImplementedException('Unknown request: ' + name)
+    try:
+        (resource, privacy_level) = resources[name]
+        private_api = True if privacy_level == 'private' else False
+    except KeyError:
+        raise Exception('Unknown resource: "' + name + '"')
 
     request_data = {}
     request_data['nonce'] = int(time.time() * 1000)
@@ -38,13 +40,15 @@ def request(name):
     urlpath = url_path_join(
         str(KRAKEN_API_VERSION),
         'private' if private_api else 'public',
-        path)
+        resource)
 
     headers = {
         'User-Agent': 'autocoin/0.0.0',
     }
 
     if private_api == True:
+        encoded = (str(request_data['nonce']) + postdata).encode()
+        message = urlpath.encode() + hashlib.sha256(encoded).digest()
 
         apikey = ''
         with open('api.key') as f:
