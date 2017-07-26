@@ -9,44 +9,56 @@ import base64
 import json
 
 
-request_data = {}
-request_data['nonce'] = int(time.time() * 1000)
-postdata = urllib.parse.urlencode(request_data)
-urlpath = '/0/private/OpenOrders'
-encoded = (str(request_data['nonce']) + postdata).encode()
-message = urlpath.encode() + hashlib.sha256(encoded).digest()
+def request(name):
+    path = ''
+    if name == 'open orders':
+        path = 'OpenOrders'
+    else:
+        raise NotImplementedException('Unknown request: ' + name)
 
-apikey = ''
-with open('api.key') as f:
-    apikey = f.readline().replace('\n', '')
+    request_data = {}
+    request_data['nonce'] = int(time.time() * 1000)
+    postdata = urllib.parse.urlencode(request_data)
+    urlpath = '/0/private/' + path
+    encoded = (str(request_data['nonce']) + postdata).encode()
+    message = urlpath.encode() + hashlib.sha256(encoded).digest()
 
-secret = ''
-with open('secret.key') as f:
-    secret = f.readline().replace('\n', '')
+    apikey = ''
+    with open('api.key') as f:
+        apikey = f.readline().replace('\n', '')
 
-signature = hmac.new(base64.b64decode(secret), message, hashlib.sha512)
-signature_digest = base64.b64encode(signature.digest())
+    secret = ''
+    with open('secret.key') as f:
+        secret = f.readline().replace('\n', '')
 
-headers = {
-    'User-Agent': 'autocoin/0.0.0',
-    'API-Key': apikey,
-    'API-Sign': signature_digest
-}
+    signature = hmac.new(base64.b64decode(secret), message, hashlib.sha512)
+    signature_digest = base64.b64encode(signature.digest())
 
-url = 'https://api.kraken.com' + urlpath
+    headers = {
+        'User-Agent': 'autocoin/0.0.0',
+        'API-Key': apikey,
+        'API-Sign': signature_digest
+    }
 
-conn = http.client.HTTPSConnection('api.kraken.com', timeout=15)
-data = urllib.parse.urlencode(request_data)
-conn.request('POST', url, data, headers)
-response = conn.getresponse()
-if response.status not in (200, 201, 202):
-    raise http.client.HTTPException(response.status)
-resp = response.read().decode()
-open_orders = json.loads(resp)
+    url = 'https://api.kraken.com' + urlpath
 
-if len(open_orders['error']) != 0:
-    raise Exception(open_orders['error'])
+    conn = http.client.HTTPSConnection('api.kraken.com', timeout=15)
+    data = urllib.parse.urlencode(request_data)
+    conn.request('POST', url, data, headers)
+    response = conn.getresponse()
+    if response.status not in (200, 201, 202):
+        raise http.client.HTTPException(response.status)
+    resp = response.read().decode()
+    open_orders = json.loads(resp)
 
-for k, v in open_orders['result']['open'].items():
-    print(30 * '=' + '\nOrder ' + k + ':')
-    print(json.dumps(v, indent=4))  # json prettier than pprint, even though 'v' is pure Python
+    if len(open_orders['error']) != 0:
+        raise Exception(open_orders['error'])
+
+    return open_orders
+
+
+if __name__ == '__main__':
+    open_orders = request('open orders')
+    for k, v in open_orders['result']['open'].items():
+        print(30 * '=' + '\nOrder ' + k + ':')
+        print(json.dumps(v, indent=4))  # json prettier than pprint, even though 'v' is pure Python
