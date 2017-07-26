@@ -1,0 +1,18 @@
+# Editors
+*~
+
+# Caching
+*.py[cod]
+__pycache__/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Testing and virtualization
+*.tox
+*.cache
+cover/
+.coverage
