@@ -8,6 +8,18 @@ import hmac
 import base64
 import json
 
+KRAKEN_API_URL = 'https://api.kraken.com'
+KRAKEN_API_VERSION = 0
+
+
+def url_path_join(*parts):
+    """Join several path parts with slashes.
+    Example: url_path_join('0', 'private', 'OpenOrders')
+    creates: '/0/private/OpenOrders'"""
+    parts = [x.strip('/') for x in parts if x]
+    path = '/' + '/'.join(parts)
+    return path
+
 
 def request(name):
     private_api = False
@@ -23,12 +35,10 @@ def request(name):
     request_data = {}
     request_data['nonce'] = int(time.time() * 1000)
     postdata = urllib.parse.urlencode(request_data)
-    if private_api == True:
-        urlpath = '/0/private/' + path
-    else:
-        urlpath = '/0/public/' + path
-    encoded = (str(request_data['nonce']) + postdata).encode()
-    message = urlpath.encode() + hashlib.sha256(encoded).digest()
+    urlpath = url_path_join(
+        str(KRAKEN_API_VERSION),
+        'private' if private_api else 'public',
+        path)
 
     headers = {
         'User-Agent': 'autocoin/0.0.0',
@@ -52,7 +62,7 @@ def request(name):
             'API-Sign': signature_digest
         })
 
-    url = 'https://api.kraken.com' + urlpath
+    url = urllib.parse.urljoin('https://api.kraken.com', urlpath)
 
     conn = http.client.HTTPSConnection('api.kraken.com', timeout=15)
     data = urllib.parse.urlencode(request_data)
