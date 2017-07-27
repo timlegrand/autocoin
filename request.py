@@ -34,9 +34,6 @@ def request(name):
     except KeyError:
         raise Exception('Unknown resource: "' + name + '"')
 
-    request_data = {}
-    request_data['nonce'] = int(time.time() * 1000)
-    postdata = urllib.parse.urlencode(request_data)
     urlpath = url_path_join(
         str(KRAKEN_API_VERSION),
         'private' if private_api else 'public',
@@ -46,7 +43,10 @@ def request(name):
         'User-Agent': 'autocoin/0.0.0',
     }
 
+    request_data = {}
     if private_api == True:
+        request_data['nonce'] = int(time.time() * 1000)
+        postdata = urllib.parse.urlencode(request_data)
         encoded = (str(request_data['nonce']) + postdata).encode()
         message = urlpath.encode() + hashlib.sha256(encoded).digest()
 
