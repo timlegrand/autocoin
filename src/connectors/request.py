@@ -24,6 +24,7 @@ def url_path_join(*parts):
 resources = {
     'server time': ('Time', 'public'),
     'open orders': ('OpenOrders', 'private'),
+    'account balance': ('Balance', 'private'),
 }
 
 
