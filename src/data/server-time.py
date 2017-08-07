@@ -1,4 +1,4 @@
-import request
+from connectors import request
 import json
 
 
