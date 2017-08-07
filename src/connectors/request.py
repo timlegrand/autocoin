@@ -23,12 +23,13 @@ def url_path_join(*parts):
 
 resources = {
     'server time': ('Time', 'public'),
+    'ticker': ('Ticker', 'public'),
     'open orders': ('OpenOrders', 'private'),
     'account balance': ('Balance', 'private'),
 }
 
 
-def request(name):
+def request(name, data=None):
     try:
         (resource, privacy_level) = resources[name]
         private_api = True if privacy_level == 'private' else False
@@ -45,6 +46,9 @@ def request(name):
     }
 
     request_data = {}
+    if data is not None:
+        request_data.update(data)
+
     if private_api == True:
         request_data['nonce'] = int(time.time() * 1000)
         postdata = urllib.parse.urlencode(request_data)
