@@ -6,10 +6,9 @@ import datetime
 if __name__ == '__main__':
     ticker = request.request('ticker', {'pair': 'XZECXXBT'})
     import json
-    print(json.dumps(ticker, indent=4))
     
     table=[]
-    for k, v in ticker['result'].items():
+    for k, v in ticker.items():
         ticker_line = [k, v['b'][0], v['a'][0]]
         table.append(ticker_line)
 

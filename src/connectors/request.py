@@ -85,4 +85,4 @@ def request(name, data=None):
     if len(resp_json['error']) != 0:
         raise Exception(resp_json['error'])
 
-    return resp_json
+    return resp_json['result']
