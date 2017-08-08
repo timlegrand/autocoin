@@ -1,6 +1,5 @@
 from connectors import request
 import tabulate
-import datetime
 
 
 if __name__ == '__main__':
