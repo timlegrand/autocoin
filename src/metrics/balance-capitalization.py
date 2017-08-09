@@ -42,7 +42,7 @@ def get_balance_capitalization():
 
     cap_table = [list(cap_table[x]) for x in cap_table]
     table_headers=['Currency', 'Balance', 'Ask (EUR)', 'Direct Cap.', 'Ask (XBT)', 'XBT-to-EUR Cap.']
-    total_table = [['TOTAL', '', '', total_dir_cap, '', total_xbt_cap]]
+    total_table = [['TOTAL EUR', '', '', total_dir_cap, '', total_xbt_cap]]
 
     return cap_table, table_headers, total_table
 
