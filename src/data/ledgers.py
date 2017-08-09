@@ -2,10 +2,9 @@ from connectors import request
 from utils import progressbar
 
 import datetime
-import tabulate
 
 
-if __name__ == '__main__':
+def get_private_ledger():
     ledgers = {}
     ledger_chunk = None
     count = 0
@@ -38,6 +37,13 @@ if __name__ == '__main__':
         e_balance = v['balance']
         table.append([e_id, e_time, e_type, e_asset, e_amount, e_fee, e_balance])
 
-    sorted_table = sorted(table, key=lambda x: x[1], reverse=True)  # By date
     table_headers=['ID', 'Time', 'Type', 'Asset', 'Amount', 'Fee', 'Balance']
+
+    return table, table_headers
+
+
+if __name__ == '__main__':
+    table, table_headers = get_private_ledger()
+    sorted_table = sorted(table, key=lambda x: x[1], reverse=True)  # By date
+    import tabulate
     print(tabulate.tabulate(sorted_table, headers=table_headers, floatfmt=".5f"))
