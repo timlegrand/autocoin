@@ -1,8 +1,7 @@
 from connectors import request
-import tabulate
 
 
-if __name__ == '__main__':
+def get_balance_capitalization():
 
     # Get account balance for all owned currencies
     balance = request.request('account balance')
@@ -42,8 +41,16 @@ if __name__ == '__main__':
         total_xbt_cap += curr_xbt_cap
 
     cap_table = [list(cap_table[x]) for x in cap_table]
-    sorted_table = sorted(cap_table, key=lambda x: x[-1], reverse=True)
     table_headers=['Currency', 'Balance', 'Ask (EUR)', 'Direct Cap.', 'Ask (XBT)', 'XBT-to-EUR Cap.']
-    print(tabulate.tabulate(sorted_table, headers=table_headers, floatfmt=".5f"))
     total_table = [['TOTAL', '', '', total_dir_cap, '', total_xbt_cap]]
-    print('\n' + tabulate.tabulate(total_table, headers=table_headers, floatfmt=".5f"))
+
+    return cap_table, table_headers, total_table
+
+
+if __name__ == '__main__':
+    cap_table, table_headers, total_table = get_balance_capitalization()
+    sorted_table = sorted(cap_table, key=lambda x: x[-1], reverse=True)
+    import tabulate
+    print(tabulate.tabulate(sorted_table, headers=table_headers, floatfmt=".5f"))
+    print()
+    print(tabulate.tabulate(total_table, headers=table_headers, floatfmt=".5f"))
