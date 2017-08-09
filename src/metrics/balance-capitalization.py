@@ -38,8 +38,12 @@ if __name__ == '__main__':
         curr_xbt_cap = curr_ask_xbt * curr_balance * xbt_eur_ask
         result_line = (source_curr, curr_balance, curr_ask_eur, curr_dir_cap, curr_ask_xbt, curr_xbt_cap)            
         cap_table[source_curr] = result_line
+        total_dir_cap += curr_dir_cap
+        total_xbt_cap += curr_xbt_cap
 
     cap_table = [list(cap_table[x]) for x in cap_table]
     sorted_table = sorted(cap_table, key=lambda x: x[-1], reverse=True)
     table_headers=['Currency', 'Balance', 'Ask (EUR)', 'Direct Cap.', 'Ask (XBT)', 'XBT-to-EUR Cap.']
     print(tabulate.tabulate(sorted_table, headers=table_headers, floatfmt=".5f"))
+    total_table = [['TOTAL', '', '', total_dir_cap, '', total_xbt_cap]]
+    print('\n' + tabulate.tabulate(total_table, headers=table_headers, floatfmt=".5f"))
