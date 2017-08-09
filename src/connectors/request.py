@@ -27,6 +27,7 @@ resources = {
     'ticker': ('Ticker', 'public'),
     'open orders': ('OpenOrders', 'private'),
     'account balance': ('Balance', 'private'),
+    'ledgers': ('Ledgers', 'private'),
 }
 
 
