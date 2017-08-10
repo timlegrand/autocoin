@@ -46,7 +46,7 @@ def get_private_ledger(entry_type=[]):
 
 
 if __name__ == '__main__':
-    table, table_headers = get_private_ledger()
+    table, table_headers = get_private_ledger(['deposit'])
     sorted_table = sorted(table, key=lambda x: x[1], reverse=True)  # By date
     import tabulate
     print(tabulate.tabulate(sorted_table, headers=table_headers, floatfmt=".5f"))
