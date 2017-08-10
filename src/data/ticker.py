@@ -6,7 +6,9 @@ def get_ticker(pairs=['XXBTZEUR']):
     
     table=[]
     for k, v in ticker.items():
-        ticker_line = [k, v['b'][0], v['a'][0]]
+        bid = float(v['b'][0])
+        ask = float(v['a'][0])
+        ticker_line = [k, bid, ask]
         table.append(ticker_line)
 
     table_headers=['Pair', 'Bid', 'Ask']

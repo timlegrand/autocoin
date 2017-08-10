@@ -32,9 +32,9 @@ def get_private_ledger(entry_type=[]):
         e_type = v['type']
         e_class = v['aclass']
         e_asset = v['asset']
-        e_amount = v['amount']
-        e_fee = v['fee']
-        e_balance = v['balance']
+        e_amount = float(v['amount'])
+        e_fee = float(v['fee'])
+        e_balance = float(v['balance'])
         if entry_type:
             if e_type not in entry_type:
                 continue
