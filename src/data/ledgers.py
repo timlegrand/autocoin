@@ -4,7 +4,7 @@ from utils import progressbar
 import datetime
 
 
-def get_private_ledger():
+def get_private_ledger(entry_type=[]):
     ledgers = {}
     ledger_chunk = None
     count = 0
@@ -35,6 +35,9 @@ def get_private_ledger():
         e_amount = v['amount']
         e_fee = v['fee']
         e_balance = v['balance']
+        if entry_type:
+            if e_type not in entry_type:
+                continue
         table.append([e_id, e_time, e_type, e_asset, e_amount, e_fee, e_balance])
 
     table_headers=['ID', 'Time', 'Type', 'Asset', 'Amount', 'Fee', 'Balance']
@@ -47,3 +50,7 @@ if __name__ == '__main__':
     sorted_table = sorted(table, key=lambda x: x[1], reverse=True)  # By date
     import tabulate
     print(tabulate.tabulate(sorted_table, headers=table_headers, floatfmt=".5f"))
+    sum = 0
+    for e in table:
+        sum += float(e[4])
+    print('TOTAL deposit: ' + str(sum))
