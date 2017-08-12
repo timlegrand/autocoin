@@ -1,7 +1,7 @@
 from connectors import request
 
 
-def get_balance_capitalization():
+def get_asset_pairs():
     asset_pairs = request.request('asset pairs')
     for pair in list(asset_pairs):
         if pair[-2:] == '.d':
@@ -10,5 +10,5 @@ def get_balance_capitalization():
 
 
 if __name__ == '__main__':
-    asset_pairs = get_balance_capitalization()
+    asset_pairs = get_asset_pairs()
     print(asset_pairs)
