@@ -1,42 +1,57 @@
 from connectors import request
+from data import assets
+
+
+def get_existing_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR']):
+    '''For a given source and destination currencies,
+    returns the list of the matching existing Kraken pairs
+    e.g. LTC => ['XLTCZEUR', 'XLTCXXBT'], BCH => ['BCHEUR', 'BCHXBT']
+    '''
+    if not kraken_pairs:
+        kraken_pairs = assets.get_asset_pairs()
+    pairs = []
+    for s in source_curr:
+        for d in dest_curr:
+            if s + d in kraken_pairs:
+                pairs.append(s + d)
+
+    return pairs
 
 
 def get_balance_capitalization():
 
     # Get account balance for all owned currencies
     balance = request.request('account balance')
-    del balance['KFEE']  # Kraken Fee Credit
-    del balance['ZEUR']
+    del balance['KFEE']  # Ignore Kraken Fee Credit
     owned_currencies = balance.keys()
 
-    # Get ticker for owned currencies
-    pairs_list = [x + 'ZEUR' for x in owned_currencies if x not in ['BCH']]
-    pairs_list.extend([x + 'XXBT' for x in owned_currencies if x not in ['XXBT', 'BCH']])
-    pairs_string = ', '.join(pairs_list)
+    # Get ticker for owned currencies and XBT/EUR
+    kraken_pairs = assets.get_asset_pairs()  # For later reuse
+    cap_pairs = get_existing_pairs(owned_currencies, kraken_pairs, ['XXBT', 'XBT', 'ZEUR', 'EUR'])
+    pairs_string = ', '.join(cap_pairs)
     ticker = request.request('ticker', {'pair': pairs_string})
+    xbt_eur_ask = float(ticker['XXBTZEUR']['a'][0])
 
     # Consolidate the balance capitalization table
     cap_table = {}
     total_dir_cap = 0
     total_xbt_cap = 0
-    xbt_eur_ask = float(ticker['XXBTZEUR']['a'][0])
-    for pair in ticker:
-        source_curr = pair[:4]
-        if cap_table:
-            if source_curr in cap_table:
-                # currency already processed in a previous iteration
-                continue
-        dest_curr = pair[4:]
-        curr_balance = float(balance[source_curr])
-        curr_ask_eur = float(ticker[source_curr+'ZEUR']['a'][0])
-        curr_dir_cap = curr_ask_eur * curr_balance
-        if source_curr != 'XXBT':
-            curr_ask_xbt = float(ticker[source_curr+'XXBT']['a'][0])
-        else:
+    for currency in balance:
+        curr_balance = float(balance[currency])
+        try:
+            pair_to_XBT = get_existing_pairs([currency], kraken_pairs, ['XXBT', 'XBT'])[0]
+            curr_ask_xbt = float(ticker[pair_to_XBT]['a'][0])
+        except:
             curr_ask_xbt = 1
-        curr_xbt_cap = curr_ask_xbt * curr_balance * xbt_eur_ask
-        result_line = (source_curr, curr_balance, curr_ask_eur, curr_dir_cap, curr_ask_xbt, curr_xbt_cap)            
-        cap_table[source_curr] = result_line
+        try:
+            pair_to_EUR = get_existing_pairs([currency], kraken_pairs, ['ZEUR', 'EUR'])[0]
+            curr_ask_eur = float(ticker[pair_to_EUR]['a'][0])
+        except:
+            curr_ask_eur = 1
+        curr_dir_cap = curr_ask_eur * curr_balance
+        curr_xbt_cap = curr_ask_xbt * curr_balance * xbt_eur_ask if currency != 'ZEUR' else curr_dir_cap
+        result_line = (currency, curr_balance, curr_ask_eur, curr_dir_cap, curr_ask_xbt, curr_xbt_cap)
+        cap_table[currency] = result_line
         total_dir_cap += curr_dir_cap
         total_xbt_cap += curr_xbt_cap
 
