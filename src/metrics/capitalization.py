@@ -1,5 +1,5 @@
 from connectors import request
-from data import assets
+from data import assets, ticker
 
 
 def get_existing_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR']):
@@ -28,9 +28,9 @@ def get_balance_capitalization():
     # Get ticker for owned currencies and XBT/EUR
     kraken_pairs = assets.get_asset_pairs()  # For later reuse
     cap_pairs = get_existing_pairs(owned_currencies, kraken_pairs, ['XXBT', 'XBT', 'ZEUR', 'EUR'])
-    pairs_string = ', '.join(cap_pairs)
-    ticker = request.request('ticker', {'pair': pairs_string})
-    xbt_eur_ask = float(ticker['XXBTZEUR']['a'][0])
+    cap_pairs.append('XXBTZEUR')
+    tickers, h = ticker.get_ticker(cap_pairs)
+    xbt_eur_ask = float(tickers['XXBTZEUR'][1])
 
     # Consolidate the balance capitalization table
     cap_table = {}
@@ -40,12 +40,12 @@ def get_balance_capitalization():
         curr_balance = float(balance[currency])
         try:
             pair_to_XBT = get_existing_pairs([currency], kraken_pairs, ['XXBT', 'XBT'])[0]
-            curr_ask_xbt = float(ticker[pair_to_XBT]['a'][0])
+            curr_ask_xbt = float(tickers[pair_to_XBT][1])
         except:
             curr_ask_xbt = 1
         try:
             pair_to_EUR = get_existing_pairs([currency], kraken_pairs, ['ZEUR', 'EUR'])[0]
-            curr_ask_eur = float(ticker[pair_to_EUR]['a'][0])
+            curr_ask_eur = float(tickers[pair_to_EUR][1])
         except:
             curr_ask_eur = 1
         curr_dir_cap = curr_ask_eur * curr_balance
