@@ -1,5 +1,6 @@
 from connectors import request
 
+
 def get_account_balance():
     balance = request.request('account balance')
     del balance['KFEE']  # Kraken Fee Credit
