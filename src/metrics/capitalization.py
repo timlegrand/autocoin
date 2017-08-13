@@ -1,5 +1,5 @@
 from connectors import request
-from data import assets, ticker, balance
+from data import assets, ticker, balance, orders
 
 
 def get_existing_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR']):
@@ -18,10 +18,30 @@ def get_existing_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR'
     return pairs
 
 
-def get_balance_capitalization():
+def get_existing_pair_from_approx(approx_pair, kraken_pairs=None, kraken_assets=None):
+    '''For a given, non-standard currency pair,
+    returns the existing Kraken pair
+    e.g. LTCEUR => 'XLTCZEUR', BCHXBT => 'BCHXBT'
+    '''
+    if not kraken_pairs:
+        kraken_pairs = assets.get_asset_pairs()
+    if not kraken_assets:
+        kraken_assets = assets.get_assets()
 
-    # Get account balance for all owned currencies
-    my_balance, h = balance.get_account_balance()
+    length = len(approx_pair)
+    source_curr = approx_pair[:length//2]
+    dest_curr = approx_pair[-length//2:]
+    s = assets.get_asset_standard_name(source_curr, kraken_assets)
+    d = assets.get_asset_standard_name(dest_curr, kraken_assets)
+    if s + d in kraken_pairs:
+        return s, d
+
+
+def get_balance_capitalization(my_balance=None):
+
+    if not my_balance:
+        # Get account balance for all owned currencies
+        my_balance, h = balance.get_account_balance()
     owned_currencies = my_balance.keys()
 
     # Get ticker for owned currencies and XBT/EUR
@@ -61,10 +81,60 @@ def get_balance_capitalization():
     return cap_table, table_headers, total_table
 
 
+def simulate_orders_success(orders, start_balance):
+    '''Simulates orders execution and computes final balance given a starting balance'''
+    new_balance = start_balance
+    for order in orders:
+        # print('simulate_orders_success: ' + str(order))
+        source_curr, dest_curr = get_existing_pair_from_approx(order[3])
+        action = order[1]
+        volume = order[2]
+        pair = order[3]
+        price = order[5]
+        if action == 'sell':
+            new_balance[dest_curr] = float(start_balance[dest_curr]) + float(volume) * float(price)
+            new_balance[source_curr] = float(start_balance[source_curr]) - float(volume)
+        if action == 'buy':
+            new_balance[dest_curr] = float(start_balance[dest_curr]) - float(volume) * float(price)
+            new_balance[source_curr] = float(start_balance[source_curr]) + float(volume)
+
+    return new_balance
+
+
+def get_orders_capitalization():
+
+    # Get account balance for all owned currencies
+    my_balance, h = balance.get_account_balance()
+    owned_currencies = my_balance.keys()
+
+    # Get ticker for owned currencies and XBT/EUR
+    kraken_pairs = assets.get_asset_pairs()  # For later reuse
+    cap_pairs = get_existing_pairs(owned_currencies, kraken_pairs, ['XXBT', 'XBT', 'ZEUR', 'EUR'])
+    cap_pairs.append('XXBTZEUR')
+    tickers, h = ticker.get_ticker(cap_pairs)
+    xbt_eur_ask = float(tickers['XXBTZEUR'][1])
+
+    # Get current open orders
+    open_orders, h = orders.get_open_orders()
+    expected_balance = simulate_orders_success(open_orders, my_balance)
+
+    return get_balance_capitalization(expected_balance)
+
+
 if __name__ == '__main__':
-    cap_table, table_headers, total_table = get_balance_capitalization()
-    sorted_table = sorted(cap_table, key=lambda x: x[-1], reverse=True)
+    balcap, balcap_headers, balcap_total = get_balance_capitalization()
+    balcap = sorted(balcap, key=lambda x: x[-1], reverse=True)  # Sort by decreasing value
+    ordcap, ordcap_headers, ordcap_total = get_orders_capitalization()
+    ordcap = sorted(ordcap, key=lambda x: x[-1], reverse=True)  # Sort by decreasing value
     import tabulate
-    print(tabulate.tabulate(sorted_table, headers=table_headers, floatfmt=".5f"))
+    print('Balance capitalization (sell everything at current asked price):')
     print()
-    print(tabulate.tabulate(total_table, headers=table_headers, floatfmt=".5f"))
+    print(tabulate.tabulate(balcap, headers=balcap_headers, floatfmt=".5f"))
+    print()
+    print(tabulate.tabulate(balcap_total, headers=balcap_headers, floatfmt=".5f"))
+    print()
+    print('Orders capitalization (all orders completed, then balance sold at current asked price):')
+    print()
+    print(tabulate.tabulate(ordcap, headers=ordcap_headers, floatfmt=".5f"))
+    print()
+    print(tabulate.tabulate(ordcap_total, headers=ordcap_headers, floatfmt=".5f"))
