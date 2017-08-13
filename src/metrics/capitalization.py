@@ -1,5 +1,5 @@
 from connectors import request
-from data import assets, ticker
+from data import assets, ticker, balance
 
 
 def get_existing_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR']):
@@ -21,9 +21,8 @@ def get_existing_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR'
 def get_balance_capitalization():
 
     # Get account balance for all owned currencies
-    balance = request.request('account balance')
-    del balance['KFEE']  # Ignore Kraken Fee Credit
-    owned_currencies = balance.keys()
+    my_balance, h = balance.get_account_balance()
+    owned_currencies = my_balance.keys()
 
     # Get ticker for owned currencies and XBT/EUR
     kraken_pairs = assets.get_asset_pairs()  # For later reuse
@@ -36,8 +35,8 @@ def get_balance_capitalization():
     cap_table = {}
     total_dir_cap = 0
     total_xbt_cap = 0
-    for currency in balance:
-        curr_balance = float(balance[currency])
+    for currency in my_balance:
+        curr_balance = float(my_balance[currency])
         try:
             pair_to_XBT = get_existing_pairs([currency], kraken_pairs, ['XXBT', 'XBT'])[0]
             curr_ask_xbt = float(tickers[pair_to_XBT][1])
