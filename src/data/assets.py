@@ -9,6 +9,12 @@ def get_asset_pairs():
     return list(asset_pairs.keys())
 
 
+def get_assets():
+    assets = request.request('assets')
+    return assets
+
+
 if __name__ == '__main__':
     asset_pairs = get_asset_pairs()
     print(asset_pairs)
+    assets_dict = get_assets()
