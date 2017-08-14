@@ -38,7 +38,8 @@ def get_standard_pair_name(approx_pair, kraken_pairs=None, kraken_assets=None):
 
 
 def get_balance_capitalization(my_balance=None):
-
+    '''Computes balance capitalization at current asked price for all currencies.
+    If no balance is provided, computes the capitalization of the Kraken balance.'''
     if not my_balance:
         # Get account balance for all owned currencies
         my_balance, h = balance.get_account_balance()
