@@ -14,7 +14,12 @@ def print(progress_percents, size=100, msg=''):
     remaining_char_number = (100 - progress_percents) * size // 100
     new_line = '\n' if progress_percents == 100 else ''
     if msg: msg += ' '
-    progress_line = msg + '[' + progress_char_number*'=' + last_char + remaining_char_number*'-' + '] ' + str(progress_percents) + '%'
+    progress_line = '{:25} [{}{}{}] {}%'.format(
+        msg,
+        progress_char_number*'=',
+        last_char,
+        remaining_char_number*'-',
+        str(progress_percents))
     progress_length = len(progress_line)
     sys.stdout.write(progress_line + new_line)
     sys.stdout.flush()
