@@ -3,7 +3,7 @@ import sys
 progress_length = 100
 
 
-def print(progress_percents, size=100, msg=''):
+def print(progress_percents, size=10, msg=''):
     global progress_length
     last_char = '-'
     if progress_percents < 100 and progress_percents > 0:
