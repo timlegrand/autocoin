@@ -28,3 +28,27 @@ def update(progress_percents, size=15, msg=''):
 
 def erase():
     sys.stdout.write(progress_length*'\b')
+
+
+
+if __name__ == '__main__':
+    import progressbar
+    progressbar.update(0, size=15, msg='Testing #1 in progress')
+    print()
+    progressbar.update(1, size=15, msg='Testing #1 in progress')
+    print()
+    progressbar.update(19, size=15, msg='Testing #1 in progress')
+    print()
+    progressbar.update(20, size=15, msg='Testing #1 in progress')
+    print()
+    progressbar.update(99, size=15, msg='Testing #1 in progress')
+    print()
+    progressbar.update(100, size=15, msg='Testing #1 in progress')
+    print()
+    import time
+    progressbar.update(0, size=15, msg='Testing #2 in progress')
+    time.sleep(1)
+    for i in range(0, 101):
+        progressbar.erase()
+        progressbar.update(i, size=15, msg='Testing #2 in progress')
+        time.sleep(0.03)
