@@ -2,7 +2,7 @@ from connectors import request
 from data import assets, ticker, balance, orders
 
 
-def get_existing_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR']):
+def get_matching_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR']):
     '''For a given source and destination currencies,
     returns the list of the matching existing Kraken pairs
     e.g. LTC => ['XLTCZEUR', 'XLTCXXBT'], BCH => ['BCHEUR', 'BCHXBT']
@@ -18,7 +18,7 @@ def get_existing_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR'
     return pairs
 
 
-def get_existing_pair_from_approx(approx_pair, kraken_pairs=None, kraken_assets=None):
+def get_standard_pair_name(approx_pair, kraken_pairs=None, kraken_assets=None):
     '''For a given, non-standard currency pair,
     returns the existing Kraken pair
     e.g. LTCEUR => 'XLTCZEUR', BCHXBT => 'BCHXBT'
@@ -46,7 +46,7 @@ def get_balance_capitalization(my_balance=None):
 
     # Get ticker for owned currencies and XBT/EUR
     kraken_pairs = assets.get_asset_pairs()  # For later reuse
-    cap_pairs = get_existing_pairs(owned_currencies, kraken_pairs, ['XXBT', 'XBT', 'ZEUR', 'EUR'])
+    cap_pairs = get_matching_pairs(owned_currencies, kraken_pairs, ['XXBT', 'XBT', 'ZEUR', 'EUR'])
     cap_pairs.append('XXBTZEUR')
     tickers, h = ticker.get_ticker(cap_pairs)
     xbt_eur_ask = float(tickers['XXBTZEUR'][1])
@@ -58,12 +58,12 @@ def get_balance_capitalization(my_balance=None):
     for currency in my_balance:
         curr_balance = float(my_balance[currency])
         try:
-            pair_to_XBT = get_existing_pairs([currency], kraken_pairs, ['XXBT', 'XBT'])[0]
+            pair_to_XBT = get_matching_pairs([currency], kraken_pairs, ['XXBT', 'XBT'])[0]
             curr_ask_xbt = float(tickers[pair_to_XBT][1])
         except:
             curr_ask_xbt = 1
         try:
-            pair_to_EUR = get_existing_pairs([currency], kraken_pairs, ['ZEUR', 'EUR'])[0]
+            pair_to_EUR = get_matching_pairs([currency], kraken_pairs, ['ZEUR', 'EUR'])[0]
             curr_ask_eur = float(tickers[pair_to_EUR][1])
         except:
             curr_ask_eur = 1
@@ -86,7 +86,7 @@ def simulate_orders_success(orders, start_balance):
     new_balance = start_balance
     for order in orders:
         # print('simulate_orders_success: ' + str(order))
-        source_curr, dest_curr = get_existing_pair_from_approx(order[3])
+        source_curr, dest_curr = get_standard_pair_name(order[3])
         action = order[1]
         volume = order[2]
         pair = order[3]
@@ -109,7 +109,7 @@ def get_orders_capitalization():
 
     # Get ticker for owned currencies and XBT/EUR
     kraken_pairs = assets.get_asset_pairs()  # For later reuse
-    cap_pairs = get_existing_pairs(owned_currencies, kraken_pairs, ['XXBT', 'XBT', 'ZEUR', 'EUR'])
+    cap_pairs = get_matching_pairs(owned_currencies, kraken_pairs, ['XXBT', 'XBT', 'ZEUR', 'EUR'])
     cap_pairs.append('XXBTZEUR')
     tickers, h = ticker.get_ticker(cap_pairs)
     xbt_eur_ask = float(tickers['XXBTZEUR'][1])
