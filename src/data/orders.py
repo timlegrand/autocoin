@@ -1,10 +1,14 @@
 from connectors import request
+from utils import progressbar
 
 import datetime
 
 
 def get_open_orders():
+    progressbar.print(0, size=10, msg='Downloading open orders')
     open_orders = request.request('open orders')
+    progressbar.erase()
+    progressbar.print(100, size=10, msg='Downloading open orders')
     table=[]
     for k, v in open_orders['open'].items():
         iso_date = datetime.datetime.fromtimestamp(int(v['opentm'])).strftime('%Y-%m-%d_%H:%M:%S')

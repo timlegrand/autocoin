@@ -1,8 +1,12 @@
 from connectors import request
+from utils import progressbar
 
 
 def get_account_balance():
+    progressbar.print(0, size=10, msg='Downloading balance')
     balance = request.request('account balance')
+    progressbar.erase()
+    progressbar.print(100, size=10, msg='Downloading balance')
     del balance['KFEE']  # Kraken Fee Credit
 
     table_headers=['Currency', 'Balance']
