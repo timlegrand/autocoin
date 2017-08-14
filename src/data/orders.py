@@ -5,10 +5,10 @@ import datetime
 
 
 def get_open_orders():
-    progressbar.print(0, msg='Downloading open orders')
+    progressbar.update(0, msg='Downloading open orders')
     open_orders = request.request('open orders')
     progressbar.erase()
-    progressbar.print(100, msg='Downloading open orders')
+    progressbar.update(100, msg='Downloading open orders')
     table=[]
     for k, v in open_orders['open'].items():
         iso_date = datetime.datetime.fromtimestamp(int(v['opentm'])).strftime('%Y-%m-%d_%H:%M:%S')

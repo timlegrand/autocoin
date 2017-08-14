@@ -3,10 +3,10 @@ from utils import progressbar
 
 
 def get_ticker(pairs=['XXBTZEUR']):
-    progressbar.print(0, msg='Downloading ticker')
+    progressbar.update(0, msg='Downloading ticker')
     ticker = request.request('ticker', {'pair': ', '.join(pairs)})
     progressbar.erase()
-    progressbar.print(100, msg='Downloading ticker')
+    progressbar.update(100, msg='Downloading ticker')
     
     table={}
     for k, v in ticker.items():

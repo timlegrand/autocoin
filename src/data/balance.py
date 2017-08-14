@@ -3,10 +3,10 @@ from utils import progressbar
 
 
 def get_account_balance():
-    progressbar.print(0, msg='Downloading balance')
+    progressbar.update(0, msg='Downloading balance')
     balance = request.request('account balance')
     progressbar.erase()
-    progressbar.print(100, msg='Downloading balance')
+    progressbar.update(100, msg='Downloading balance')
     del balance['KFEE']  # Kraken Fee Credit
 
     table_headers=['Currency', 'Balance']
