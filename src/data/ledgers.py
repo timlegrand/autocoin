@@ -18,7 +18,7 @@ def get_private_ledger(entry_type=[]):
             if progress:
                 progressbar.erase()
             progress = len(ledgers.keys()) * 100 // count
-            progressbar.print(progress, size=10, msg='Downloading ledger ')
+            progressbar.print(progress, size=10, msg='Downloading ledger')
         ledger_chunk = ledger_chunk['ledger']
         if not ledger_chunk:
             break
