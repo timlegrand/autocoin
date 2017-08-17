@@ -15,6 +15,9 @@ KRAKEN_API_URL = 'https://api.kraken.com'
 KRAKEN_API_VERSION = 0
 
 
+cache = {}
+
+
 def url_path_join(*parts):
     """Join several path parts with slashes.
     Example: url_path_join('0', 'private', 'OpenOrders')
@@ -24,23 +27,34 @@ def url_path_join(*parts):
     return path
 
 
+# Resources tuple: (<KrakenAPIName>, <private/public>, <cachable>)
 resources = {
-    'server time': ('Time', 'public'),
-    'asset pairs': ('AssetPairs', 'public'),
-    'assets': ('Assets', 'public'),
-    'ticker': ('Ticker', 'public'),
-    'open orders': ('OpenOrders', 'private'),
-    'account balance': ('Balance', 'private'),
-    'ledgers': ('Ledgers', 'private'),
+    'server time': ('Time', 'public', False),
+    'asset pairs': ('AssetPairs', 'public', True),
+    'assets': ('Assets', 'public', True),
+    'ticker': ('Ticker', 'public', False),
+    'open orders': ('OpenOrders', 'private', False),
+    'account balance': ('Balance', 'private', False),
+    'ledgers': ('Ledgers', 'private', False),
 }
+
+
+def is_cachable(resource_name):
+    return resources[resource_name][2]
 
 
 def request(name, data_headers=None):
     """High-level, exposed request function.
-    Emits a first request and search in response for count information.
-    (count info in response means partial response with a single chunk of data).
-    Proceeds to further requests with offset until retreived entries count equals
-    total count."""
+    Return cached response if any.
+    Otherwise, emit a first request and search in response for count
+    information (count info in response means partial response with a single
+    chunk of data). Then proceed to further requests with offset until
+    retreived entries count equals total count."""
+    global cache
+    if name in cache:
+        print('Using cached ' + name)
+        return cache[name]
+
     complete_response = {}
     progress = 0
     count = 0
@@ -80,13 +94,17 @@ def request(name, data_headers=None):
         if not count:
             break
 
+    # Cache data for future requests
+    if is_cachable(name):
+        cache[name] = complete_response
+
     return complete_response
 
 
 def _request(name, data_headers=None):
 
     try:
-        (resource, privacy_level) = resources[name]
+        (resource, privacy_level, cachable) = resources[name]
         private_api = True if privacy_level == 'private' else False
     except KeyError:
         raise Exception('Unknown resource: "' + name + '"')
