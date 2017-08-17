@@ -1,5 +1,4 @@
 from connectors import request
-from utils import progressbar
 
 import datetime
 

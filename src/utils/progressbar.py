@@ -15,7 +15,7 @@ def update(progress_percents, size=15, msg=''):
     remaining_char_number = size - progress_char_number
     new_line = '\n' if progress_percents == 100 else ''
     if msg: msg += ' '
-    progress_line = '{:25} [{}{}{}] {}%'.format(
+    progress_line = '{:30} [{}{}{}] {}%'.format(
         msg,
         progress_char_number*'=',
         current_char,

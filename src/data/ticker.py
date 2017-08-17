@@ -1,12 +1,8 @@
 from connectors import request
-from utils import progressbar
 
 
 def get_ticker(pairs=['XXBTZEUR']):
-    progressbar.update(0, msg='Downloading ticker')
     ticker = request.request('ticker', {'pair': ', '.join(pairs)})
-    progressbar.erase()
-    progressbar.update(100, msg='Downloading ticker')
     
     table={}
     for k, v in ticker.items():

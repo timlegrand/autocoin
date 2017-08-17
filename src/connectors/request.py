@@ -8,6 +8,9 @@ import hmac
 import base64
 import json
 
+from utils import progressbar
+
+
 KRAKEN_API_URL = 'https://api.kraken.com'
 KRAKEN_API_VERSION = 0
 
@@ -39,14 +42,17 @@ def request(name, data_headers=None):
     Proceeds to further requests with offset until retreived entries count equals
     total count.'''
     complete_response = {}
+    progress = 0
     count = 0
     i = 0
+
+    progressbar.update(0, msg='Downloading ' + name)
+
     while True:
         if count:
             if count == len(complete_response):
                 break
             data_headers.update({'ofs': len(complete_response)})
-            print('ofs/count: {}/{}'.format(str(len(complete_response)), str(count)))
 
         response_data = _request(name, data_headers)
 
@@ -62,6 +68,16 @@ def request(name, data_headers=None):
                 raise
         else:
             complete_response.update(response_data)
+
+        if count:
+            progress = len(complete_response) * 100 // count
+        else:
+            progress = 100
+
+        progressbar.erase()
+        progressbar.update(progress, msg='Downloading ' + name)
+
+        if not count:
             break
 
     return complete_response
