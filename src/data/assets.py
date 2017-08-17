@@ -46,8 +46,9 @@ def get_asset_standard_name(name_or_altname, assets_dict=None):
 
 
 if __name__ == '__main__':
-    asset_pairs = get_asset_pairs()
-    print(asset_pairs)
     assets_dict = get_assets()
-    print('LTC is ' + get_asset_standard_name('LTC', assets_dict))
-    print('XETH is ' + get_asset_standard_name('XETH', assets_dict))
+    print('Kraken available assets: ' + ', '.join(sorted(assets_dict)))
+    asset_pairs = get_asset_pairs()
+    print('Kraken available asset pairs: ' + ', '.join(sorted(asset_pairs)))
+    print('LTC standard name is ' + get_asset_standard_name('LTC', assets_dict))
+    print('XETH standard name is ' + get_asset_standard_name('XETH', assets_dict))
