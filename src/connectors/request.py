@@ -8,30 +8,14 @@ import json
 
 import utils.url
 
+from connectors.cache import cache, is_cachable
+from connectors.resources_kraken import resources
+
 from utils import progressbar
 
 
 KRAKEN_API_URL = 'https://api.kraken.com'
 KRAKEN_API_VERSION = 0
-
-
-cache = {}
-
-
-# Resources tuple: (<KrakenAPIName>, <private/public>, <cachable>)
-resources = {
-    'server time': ('Time', 'public', False),
-    'asset pairs': ('AssetPairs', 'public', True),
-    'assets': ('Assets', 'public', True),
-    'ticker': ('Ticker', 'public', False),
-    'open orders': ('OpenOrders', 'private', False),
-    'account balance': ('Balance', 'private', False),
-    'ledgers': ('Ledgers', 'private', False),
-}
-
-
-def is_cachable(resource_name):
-    return resources[resource_name][2]
 
 
 def request(name, data_headers=None):
@@ -41,7 +25,6 @@ def request(name, data_headers=None):
     information (count info in response means partial response with a single
     chunk of data). Then proceed to further requests with offset until
     retreived entries count equals total count."""
-    global cache
     if name in cache:
         print('Using cached ' + name)
         return cache[name]
