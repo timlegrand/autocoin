@@ -46,7 +46,8 @@ def request(name, data_headers=None):
     count = 0
     i = 0
 
-    progressbar.update(0, msg='Downloading ' + name)
+    p = progressbar.Progressbar(msg='Downloading ' + name)
+    p.progress(0)
 
     while True:
         if count:
@@ -74,8 +75,7 @@ def request(name, data_headers=None):
         else:
             progress = 100
 
-        progressbar.erase()
-        progressbar.update(progress, msg='Downloading ' + name)
+        p.progress(progress)
 
         if not count:
             break
