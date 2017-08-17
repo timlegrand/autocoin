@@ -6,6 +6,8 @@ import hmac
 import base64
 import json
 
+import utils.url
+
 from utils import progressbar
 
 
@@ -14,15 +16,6 @@ KRAKEN_API_VERSION = 0
 
 
 cache = {}
-
-
-def url_path_join(*parts):
-    """Join several path parts with slashes.
-    Example: url_path_join('0', 'private', 'OpenOrders')
-    creates: '/0/private/OpenOrders'"""
-    parts = [x.strip('/') for x in parts if x]
-    path = '/' + '/'.join(parts)
-    return path
 
 
 # Resources tuple: (<KrakenAPIName>, <private/public>, <cachable>)
@@ -107,7 +100,7 @@ def _request(name, data_headers=None):
     except KeyError:
         raise Exception('Unknown resource: "' + name + '"')
 
-    urlpath = url_path_join(
+    urlpath = utils.url.join(
         str(KRAKEN_API_VERSION),
         'private' if private_api else 'public',
         resource)
