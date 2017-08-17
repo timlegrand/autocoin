@@ -32,60 +32,85 @@ resources = {
 }
 
 
-def request(name, data=None):
-    try:
-        (resource, privacy_level) = resources[name]
-        private_api = True if privacy_level == 'private' else False
-    except KeyError:
-        raise Exception('Unknown resource: "' + name + '"')
+def request(name, data_headers=None):
+    complete_response = {}
+    count = 0
+    i = 0
+    while True:
+        try:
+            (resource, privacy_level) = resources[name]
+            private_api = True if privacy_level == 'private' else False
+        except KeyError:
+            raise Exception('Unknown resource: "' + name + '"')
 
-    urlpath = url_path_join(
-        str(KRAKEN_API_VERSION),
-        'private' if private_api else 'public',
-        resource)
+        urlpath = url_path_join(
+            str(KRAKEN_API_VERSION),
+            'private' if private_api else 'public',
+            resource)
 
-    headers = {
-        'User-Agent': 'autocoin/0.0.0',
-    }
+        headers = {
+            'User-Agent': 'autocoin/0.0.0',
+        }
 
-    request_data = {}
-    if data is not None:
-        request_data.update(data)
+        request_data = {}
+        if data_headers is not None:
+            request_data.update(data_headers)
 
-    if private_api == True:
-        request_data['nonce'] = int(time.time() * 1000)
-        postdata = urllib.parse.urlencode(request_data)
-        encoded = (str(request_data['nonce']) + postdata).encode()
-        message = urlpath.encode() + hashlib.sha256(encoded).digest()
+        if count:
+            if count == len(complete_response):
+                break
+            request_data.update({'ofs': len(complete_response)})
+            print('ofs/count: {}/{}'.format(str(len(complete_response)), str(count)))
 
-        apikey = ''
-        with open('api.key') as f:
-            apikey = f.readline().replace('\n', '')
+        if private_api == True:
+            request_data['nonce'] = int(time.time() * 1000)
+            postdata = urllib.parse.urlencode(request_data)
+            encoded = (str(request_data['nonce']) + postdata).encode()
+            message = urlpath.encode() + hashlib.sha256(encoded).digest()
 
-        secret = ''
-        with open('secret.key') as f:
-            secret = f.readline().replace('\n', '')
+            apikey = ''
+            with open('api.key') as f:
+                apikey = f.readline().replace('\n', '')
 
-        signature = hmac.new(base64.b64decode(secret), message, hashlib.sha512)
-        signature_digest = base64.b64encode(signature.digest())
+            secret = ''
+            with open('secret.key') as f:
+                secret = f.readline().replace('\n', '')
 
-        headers.update({
-            'API-Key': apikey,
-            'API-Sign': signature_digest
-        })
+            signature = hmac.new(base64.b64decode(secret), message, hashlib.sha512)
+            signature_digest = base64.b64encode(signature.digest())
 
-    url = urllib.parse.urljoin('https://api.kraken.com', urlpath)
+            headers.update({
+                'API-Key': apikey,
+                'API-Sign': signature_digest
+            })
 
-    conn = http.client.HTTPSConnection('api.kraken.com', timeout=15)
-    data = urllib.parse.urlencode(request_data)
-    conn.request('POST', url, data, headers)
-    response = conn.getresponse()
-    if response.status not in (200, 201, 202):
-        raise http.client.HTTPException(response.status)
-    resp = response.read().decode()
-    resp_json = json.loads(resp)
+        url = urllib.parse.urljoin('https://api.kraken.com', urlpath)
 
-    if len(resp_json['error']) != 0:
-        raise Exception(resp_json['error'])
+        conn = http.client.HTTPSConnection('api.kraken.com', timeout=15)
+        data = urllib.parse.urlencode(request_data)
+        conn.request('POST', url, data, headers)
+        response = conn.getresponse()
+        if response.status not in (200, 201, 202):
+            raise http.client.HTTPException(response.status)
+        resp = response.read().decode()
+        resp_json = json.loads(resp)
 
-    return resp_json['result']
+        if len(resp_json['error']) != 0:
+            raise Exception(resp_json['error'])
+
+        response_data = resp_json['result']
+        if 'count' in response_data:
+            count = response_data['count']
+            del response_data['count']
+            try:
+                response_data_keys = list(response_data.keys())
+                response_data_key = response_data_keys[0]
+                response_data_chunk = response_data[response_data_key]
+                complete_response.update(response_data_chunk)
+            except:
+                raise
+        else:
+            complete_response.update(response_data)
+            break
+
+    return complete_response

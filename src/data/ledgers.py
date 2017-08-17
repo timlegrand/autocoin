@@ -5,24 +5,8 @@ import datetime
 
 
 def get_private_ledger(entry_type=[]):
-    ledgers = {}
-    ledger_chunk = None
-    count = 0
-    progress = None
-    while True:
-        headers = {'asset': 'ZEUR', 'ofs': len(ledgers)}
-        ledger_chunk = request.request('ledgers', headers)
-        if not count:
-            count = ledger_chunk['count']
-        else:
-            if progress:
-                progressbar.erase()
-            progress = len(ledgers.keys()) * 100 // count
-            progressbar.update(progress, msg='Downloading ledger')
-        ledger_chunk = ledger_chunk['ledger']
-        if not ledger_chunk:
-            break
-        ledgers.update(ledger_chunk)
+    headers = {'asset': 'ZEUR'}
+    ledgers = request.request('ledgers', headers)
 
     table = []
     sum = 0
