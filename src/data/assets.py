@@ -25,8 +25,8 @@ def get_assets():
 
 
 def get_asset_standard_name(name_or_altname, assets_dict=None):
-    '''Returns the standard name of a given asset.
-    Given asset may be provided in both standard or common forms.'''
+    """Return the standard name of a given asset.
+    Given asset may be provided in both standard or common forms."""
     if not assets_dict:
         assets_dict = get_assets()
 

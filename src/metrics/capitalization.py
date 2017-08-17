@@ -3,10 +3,9 @@ from data import assets, ticker, balance, orders
 
 
 def get_matching_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR']):
-    '''For a given source and destination currencies,
-    returns the list of the matching existing Kraken pairs
-    e.g. LTC => ['XLTCZEUR', 'XLTCXXBT'], BCH => ['BCHEUR', 'BCHXBT']
-    '''
+    """For a given source and destination currencies,
+    return the list of the matching existing Kraken pairs
+    e.g. LTC => ['XLTCZEUR', 'XLTCXXBT'], BCH => ['BCHEUR', 'BCHXBT']."""
     if not kraken_pairs:
         kraken_pairs = assets.get_asset_pairs()
     pairs = []
@@ -19,10 +18,9 @@ def get_matching_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR'
 
 
 def get_standard_pair_name(approx_pair, kraken_pairs=None, kraken_assets=None):
-    '''For a given, non-standard currency pair,
-    returns the existing Kraken pair
-    e.g. LTCEUR => 'XLTCZEUR', BCHXBT => 'BCHXBT'
-    '''
+    """For a given, non-standard currency pair,
+    return the existing Kraken pair
+    e.g. LTCEUR => 'XLTCZEUR', BCHXBT => 'BCHXBT'"""
     if not kraken_pairs:
         kraken_pairs = assets.get_asset_pairs()
     if not kraken_assets:
@@ -38,8 +36,8 @@ def get_standard_pair_name(approx_pair, kraken_pairs=None, kraken_assets=None):
 
 
 def get_balance_capitalization(my_balance=None):
-    '''Computes balance capitalization at current asked price for all currencies.
-    If no balance is provided, computes the capitalization of the Kraken balance.'''
+    """Return balance capitalization at current asked price for all currencies.
+    If no balance is provided, return the capitalization of the Kraken balance."""
     if not my_balance:
         # Get account balance for all owned currencies
         my_balance, h = balance.get_account_balance()
@@ -83,7 +81,7 @@ def get_balance_capitalization(my_balance=None):
 
 
 def simulate_orders_success(orders, start_balance):
-    '''Simulates orders execution and computes final balance given a starting balance'''
+    """Simulate orders execution and return final balance given a starting balance."""
     new_balance = start_balance
     for order in orders:
         # print('simulate_orders_success: ' + str(order))

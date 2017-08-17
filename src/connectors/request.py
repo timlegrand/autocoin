@@ -36,11 +36,11 @@ resources = {
 
 
 def request(name, data_headers=None):
-    '''High-level, exposed request function.
+    """High-level, exposed request function.
     Emits a first request and search in response for count information.
     (count info in response means partial response with a single chunk of data).
     Proceeds to further requests with offset until retreived entries count equals
-    total count.'''
+    total count."""
     complete_response = {}
     progress = 0
     count = 0
