@@ -6,6 +6,7 @@ resources = {
     'assets': ('Assets', 'public', True),
     'ticker': ('Ticker', 'public', False),
     'open orders': ('OpenOrders', 'private', False),
+    'closed orders': ('ClosedOrders', 'private', False),
     'account balance': ('Balance', 'private', False),
     'ledgers': ('Ledgers', 'private', False),
 }
