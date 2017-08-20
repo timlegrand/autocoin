@@ -30,23 +30,23 @@ def request(name, data_headers={}):
         return cache[name]
 
     complete_response = {}
-    progress = 0
-    count = 0
+    progress_count = 0
+    total_count = 0
     i = 0
 
     p = progressbar.Progressbar(msg='Downloading ' + name)
     p.progress(0)
 
     while True:
-        if count:
-            if count == len(complete_response):
+        if total_count:
+            if total_count == len(complete_response):
                 break
             data_headers.update({'ofs': len(complete_response)})
 
         response_data = _request(name, data_headers)
 
         if 'count' in response_data:
-            count = response_data['count']
+            total_count = response_data['count']
             del response_data['count']
             try:
                 response_data_keys = list(response_data.keys())
@@ -58,14 +58,14 @@ def request(name, data_headers={}):
         else:
             complete_response.update(response_data)
 
-        if count:
-            progress = len(complete_response) * 100 // count
+        if total_count:
+            progress_count = len(complete_response) * 100 // total_count
         else:
-            progress = 100
+            progress_count = 100
 
-        p.progress(progress)
+        p.progress(progress_count)
 
-        if not count:
+        if not total_count:
             break
 
     # Cache data for future requests
