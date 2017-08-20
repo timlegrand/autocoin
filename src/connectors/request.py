@@ -18,10 +18,10 @@ KRAKEN_API_URL = 'https://api.kraken.com'
 KRAKEN_API_VERSION = 0
 
 
-def request(name, data_headers=None):
+def request(name, data_headers={}):
     """High-level, exposed request function.
     Return cached response if any.
-    Otherwise, emit a first request and search in response for count
+    Otherwise, emit a first request and search in response for total_count
     information (count info in response means partial response with a single
     chunk of data). Then proceed to further requests with offset until
     retreived entries count equals total count."""
