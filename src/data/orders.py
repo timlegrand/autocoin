@@ -6,8 +6,6 @@ import datetime
 def get_open_orders():
     open_orders = request.request('open orders')
     table=[]
-    import json
-    print(json.dumps(open_orders, indent=4))
     for o_id, v in open_orders['open'].items():
         o_date = datetime.datetime.fromtimestamp(int(v['opentm'])).strftime('%Y-%m-%d_%H:%M:%S')
         order_line = (' '.join([o_id, v['descr']['order'], o_date])).split()

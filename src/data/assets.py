@@ -24,14 +24,12 @@ def get_standard_names_for_pair(approx_pair, kraken_pairs=None, kraken_assets=No
         kraken_pairs = get_asset_pairs()
     if not kraken_assets:
         kraken_assets = get_assets()
-    print(approx_pair)
     length = len(approx_pair)
     src = approx_pair[:length//2]
     dest = approx_pair[-length//2:]
     std_src = get_asset_standard_name(src, kraken_assets)
     std_dest = get_asset_standard_name(dest, kraken_assets)
     possible_pairs = [(x,y) for x in [src, std_src] for y in [dest, std_dest]]
-    print(possible_pairs)
     for s, d in possible_pairs:
         if s + d in kraken_pairs:
             return get_asset_standard_name(s), get_asset_standard_name(d)
