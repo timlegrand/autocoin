@@ -14,7 +14,8 @@ from connectors.resources_kraken import resources
 from utils import progressbar
 
 
-KRAKEN_API_URL = 'https://api.kraken.com'
+KRAKEN_API_SERVER_NAME = 'api.kraken.com'
+KRAKEN_API_URL = 'https://' + KRAKEN_API_SERVER_NAME
 KRAKEN_API_VERSION = 0
 
 
@@ -117,9 +118,9 @@ def _request(name, data_headers=None):
             'API-Sign': signature_digest
         })
 
-    url = urllib.parse.urljoin('https://api.kraken.com', urlpath)
+    url = urllib.parse.urljoin(KRAKEN_API_URL, urlpath)
 
-    conn = http.client.HTTPSConnection('api.kraken.com', timeout=15)
+    conn = http.client.HTTPSConnection(KRAKEN_API_SERVER_NAME, timeout=15)
     data = urllib.parse.urlencode(request_data)
     conn.request('POST', url, data, headers)
     response = conn.getresponse()
