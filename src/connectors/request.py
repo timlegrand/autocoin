@@ -32,7 +32,6 @@ def request(name, data_headers={}):
     complete_response = {}
     progress_count = 0
     total_count = 0
-    i = 0
 
     p = progressbar.Progressbar(msg='Downloading ' + name)
     p.progress(0)
@@ -96,7 +95,7 @@ def _request(name, data_headers=None):
     if data_headers is not None:
         request_data.update(data_headers)
 
-    if private_api == True:
+    if private_api:
         request_data['nonce'] = int(time.time() * 1000)
         postdata = urllib.parse.urlencode(request_data)
         encoded = (str(request_data['nonce']) + postdata).encode()
