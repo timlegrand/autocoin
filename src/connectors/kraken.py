@@ -1,5 +1,10 @@
 
-# Resources tuple: (<KrakenAPIName>, <private/public>, <cachable>)
+API_SERVER_NAME = 'api.kraken.com'
+API_URL = 'https://' + API_SERVER_NAME
+API_VERSION = 0
+
+
+# Resources tuple: (<APIResourceName>, <private/public>, <cachable>)
 resources = {
     'server time': ('Time', 'public', False),
     'asset pairs': ('AssetPairs', 'public', True),

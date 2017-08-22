@@ -9,14 +9,8 @@ import json
 import utils.url
 
 from connectors.cache import cache, is_cachable
-from connectors.kraken import resources
-
+from connectors.kraken import resources, API_SERVER_NAME, API_URL, API_VERSION
 from utils import progressbar
-
-
-KRAKEN_API_SERVER_NAME = 'api.kraken.com'
-KRAKEN_API_URL = 'https://' + KRAKEN_API_SERVER_NAME
-KRAKEN_API_VERSION = 0
 
 
 def request(name, data_headers={}):
@@ -84,7 +78,7 @@ def _request(name, data_headers=None):
         raise Exception('Unknown resource: "' + name + '"')
 
     urlpath = utils.url.join(
-        str(KRAKEN_API_VERSION),
+        str(API_VERSION),
         'private' if private_api else 'public',
         resource)
 
@@ -118,9 +112,9 @@ def _request(name, data_headers=None):
             'API-Sign': signature_digest
         })
 
-    url = urllib.parse.urljoin(KRAKEN_API_URL, urlpath)
+    url = urllib.parse.urljoin(API_URL, urlpath)
 
-    conn = http.client.HTTPSConnection(KRAKEN_API_SERVER_NAME, timeout=15)
+    conn = http.client.HTTPSConnection(API_SERVER_NAME, timeout=15)
     data = urllib.parse.urlencode(request_data)
     conn.request('POST', url, data, headers)
     response = conn.getresponse()
