@@ -13,7 +13,7 @@ class Progressbar():
             sys.stdout.write(self.progress_length*'\b')
         if not msg:
             msg = self.msg
-        
+
         current_char = '-'
         if progress_percents < 100 and progress_percents > 0:
             current_char = '>'
@@ -22,7 +22,8 @@ class Progressbar():
         progress_char_number = progress_percents * self.size // 100
         remaining_char_number = self.size - progress_char_number
         new_line = '\n' if progress_percents == 100 else ''
-        if msg: msg += ' '
+        if msg:
+            msg += ' '
         progress_line = '{:30} [{}{}{}] {}%'.format(
             msg,
             progress_char_number*'=',
@@ -35,7 +36,6 @@ class Progressbar():
 
 
 if __name__ == '__main__':
-    import progressbar
     p = Progressbar(size=15, msg='Testing #1 in progress')
     p.progress(0)
     print()
