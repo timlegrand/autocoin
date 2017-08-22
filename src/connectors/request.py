@@ -9,7 +9,7 @@ import json
 import utils.url
 
 from connectors.cache import cache, is_cachable
-from connectors.resources_kraken import resources
+from connectors.kraken import resources
 
 from utils import progressbar
 

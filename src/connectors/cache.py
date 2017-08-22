@@ -1,4 +1,4 @@
-from connectors.resources_kraken import resources
+from connectors.kraken import resources
 
 
 cache = {}
