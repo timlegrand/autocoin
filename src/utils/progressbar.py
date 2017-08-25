@@ -8,18 +8,24 @@ class Progressbar():
         self.size = size
         self.msg = msg
 
-    def progress(self, progress_percents, msg=''):
+    def progress(self, progress=0, total=0, msg=''):
+        if total:
+            progress_percents = progress * 100 / total
+        else:
+            progress_percents = progress
         if self.progress_length:
             sys.stdout.write(self.progress_length*'\b')
         if not msg:
             msg = self.msg
+        else:
+            self.msg = msg
 
         current_char = '-'
         if progress_percents < 100 and progress_percents > 0:
             current_char = '>'
         elif progress_percents == 100:
             current_char = '='
-        progress_char_number = progress_percents * self.size // 100
+        progress_char_number = int(progress_percents * self.size // 100)
         remaining_char_number = self.size - progress_char_number
         new_line = '\n' if progress_percents == 100 else ''
         if msg:
@@ -50,9 +56,9 @@ if __name__ == '__main__':
     p.progress(100)
     print()
     import time
-    p.progress(0, msg='Testing #2 in progress')
+    p.progress(0, msg='Testing #2 in progress...')
     time.sleep(1)
-    for i in range(0, 101):
-        p.erase()
-        p.progress(i, msg='Testing #2 in progress')
+    total = 200
+    for i in range(0, total, 3):
+        p.progress(i, total)
         time.sleep(0.03)
