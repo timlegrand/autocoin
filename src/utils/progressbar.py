@@ -7,6 +7,7 @@ class Progressbar():
         self.progress_length = 0
         self.size = size
         self.msg = msg
+        self.complete = False
 
     def progress(self, progress=0, total=0, msg=''):
         if total:
@@ -25,6 +26,7 @@ class Progressbar():
             current_char = '>'
         elif progress_percents == 100:
             current_char = '='
+            self.complete = True
         progress_char_number = int(progress_percents * self.size // 100)
         remaining_char_number = self.size - progress_char_number
         new_line = '\n' if progress_percents == 100 else ''
@@ -40,9 +42,17 @@ class Progressbar():
         sys.stdout.write(progress_line + new_line)
         sys.stdout.flush()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        if not self.complete:
+            sys.stdout.write('\n')
+            sys.stdout.flush()
+
 
 if __name__ == '__main__':
-    p = Progressbar(size=15, msg='Testing #1 in progress')
+    p = Progressbar(size=15, msg='Testing #1 in progress...')
     p.progress(0)
     print()
     p.progress(1)
@@ -62,3 +72,9 @@ if __name__ == '__main__':
     for i in range(0, total, 3):
         p.progress(i, total)
         time.sleep(0.03)
+
+    print('Should write a new line soon...')
+    time.sleep(1)
+    with Progressbar() as p:
+        pass
+    print('End.')
