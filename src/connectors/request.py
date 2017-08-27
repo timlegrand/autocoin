@@ -21,7 +21,7 @@ def request(name, data_headers={}):
     chunk of data). Then proceed to further requests with offset until
     retreived entries count equals total count."""
     if name in cache:
-        print('Using cached ' + name)
+        # print('Using cached ' + name)
         return cache[name]
 
     complete_response = {}
