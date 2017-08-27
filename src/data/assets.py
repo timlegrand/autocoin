@@ -1,7 +1,10 @@
 from connectors import request
 
 
-def get_matching_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR']):
+def get_matching_pairs(
+        source_curr,
+        kraken_pairs=None,
+        dest_curr=['XXBT', 'ZEUR']):
     """For a given source and destination currencies,
     return the list of the matching existing Kraken pairs
     e.g. LTC => ['XLTCZEUR', 'XLTCXXBT'], BCH => ['BCHEUR', 'BCHXBT']."""
@@ -16,7 +19,11 @@ def get_matching_pairs(source_curr, kraken_pairs=None, dest_curr=['XXBT', 'ZEUR'
     return pairs
 
 
-def get_standard_names_for_pair(approx_pair, kraken_pairs=None, kraken_assets=None):
+def get_standard_names_for_pair(
+        approx_pair,
+        kraken_pairs=None,
+        kraken_assets=None
+        ):
     """For a given, non-standard currency pair,
     return the existing Kraken currency names
     e.g. LTCEUR => ('XLTC', 'ZEUR'), BCHXBT => ('BCH', 'XBT')"""
@@ -29,11 +36,11 @@ def get_standard_names_for_pair(approx_pair, kraken_pairs=None, kraken_assets=No
     dest = approx_pair[-length//2:]
     std_src = get_asset_standard_name(src, kraken_assets)
     std_dest = get_asset_standard_name(dest, kraken_assets)
-    possible_pairs = [(x,y) for x in [src, std_src] for y in [dest, std_dest]]
+    possible_pairs = [(x, y) for x in [src, std_src] for y in [dest, std_dest]]
     for s, d in possible_pairs:
         if s + d in kraken_pairs:
             return get_asset_standard_name(s), get_asset_standard_name(d)
-    raise Exception('Standard name for asset pair "' + approx_pair + '" not found.')
+    raise Exception('Standard name for pair "' + approx_pair + '" not found.')
 
 
 def get_asset_pairs():
@@ -64,12 +71,13 @@ def get_asset_standard_name(name_or_altname, assets_dict=None):
 
 
 if __name__ == '__main__':
-    assets_dict = get_assets()
-    print('Kraken available assets: ' + ', '.join(sorted(assets_dict)))
+    assets = get_assets()
+    print('Kraken available assets: ' + ', '.join(sorted(assets)))
     asset_pairs = get_asset_pairs()
     print('Kraken available asset pairs: ' + ', '.join(sorted(asset_pairs)))
-    print('LTC standard name is ' + get_asset_standard_name('LTC', assets_dict))
-    print('XETH standard name is ' + get_asset_standard_name('XETH', assets_dict))
-    print('BCH standard name is ' + get_asset_standard_name('BCH', assets_dict))
-    print('XBT standard name is ' + get_asset_standard_name('XBT', assets_dict))
-    print('Standard currency names for pair BCHXBT is ' + str(get_standard_names_for_pair('BCHXBT')))
+    print('LTC standard name: ' + get_asset_standard_name('LTC', assets))
+    print('XETH standard name: ' + get_asset_standard_name('XETH', assets))
+    print('BCH standard name: ' + get_asset_standard_name('BCH', assets))
+    print('XBT standard name: ' + get_asset_standard_name('XBT', assets))
+    print('Standard currency names for pair BCHXBT: {}'.format(
+        str(get_standard_names_for_pair('BCHXBT'))))
