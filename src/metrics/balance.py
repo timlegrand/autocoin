@@ -22,32 +22,40 @@ def get_engaged_volume(currency, orders_cache=None):
         if src_curr == std_curr and o[1] == 'sell':
             o_spend = float(o_vol)
             volume += o_spend
-            msg = 'selling {} {} (for {})'.format(
+            msg += 'selling {} {} (for {})'.format(
                 o_spend, std_curr, dst_curr)
         elif dst_curr == std_curr and o[1] == 'buy':
             o_spend = float(o_vol) * float(o_price)
             volume += o_spend
-            msg = 'spending {} {} (for {} {} @{})'.format(
-                o_spend, std_curr, o_vol, src_curr, o_price)
+            msg += 'spending {} {} (to buy {} {} @{} {})'.format(
+                o_spend, std_curr, o_vol, src_curr, o_price, std_curr)
         if msg:
-            print(msg)
+            print('Already placed: ' + msg)
     return volume
 
 
-def get_free_balance():
+def get_positionable_balance(currencies=None):
+    """Return the volume available for order creation, i.e. not engaged
+    in any open order, for all given currencies.
+    If no currency list given, return positionable volume for all owned
+    currencies."""
     balances, balance_headers = balance.get_account_balance()
     free_balance = {}
     order_cache = orders.get_open_orders()
+    if currencies:
+        currencies = [assets.get_asset_standard_name(x) for x in currencies]
+
     for curr, bal in balances.items():
-        engaged_vol = get_engaged_volume(curr, order_cache)
-        bal = float(bal) - engaged_vol
-        free_balance[curr] = bal
+        if currencies is None or curr in currencies:
+            engaged_vol = get_engaged_volume(curr, order_cache)
+            bal = float(bal) - engaged_vol
+            free_balance[curr] = bal
 
     return free_balance, balance_headers
 
 
 if __name__ == '__main__':
-    free_bal, headers = get_free_balance()
+    free_bal, headers = get_positionable_balance()
     sorted_table = sorted(free_bal.items(), key=lambda x: x[-1], reverse=True)
     import tabulate
     print(tabulate.tabulate(
