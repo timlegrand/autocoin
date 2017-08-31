@@ -5,12 +5,16 @@ import hashlib
 import hmac
 import base64
 import json
-
 import utils.url
+
+from datetime import datetime, timedelta
 
 from connectors.cache import cache, is_cachable
 from connectors.kraken import resources, API_SERVER_NAME, API_URL, API_VERSION
 from utils import progressbar
+
+
+last_request_time = None
 
 
 def request(name, data_headers={}):
@@ -32,12 +36,20 @@ def request(name, data_headers={}):
     p.progress(0)
 
     while True:
+        # print(len(complete_response), '/', total_count)
         if total_count:
-            if total_count == len(complete_response):
+            # print('COUNTING')
+            if len(complete_response) >= total_count:
                 break
             data_headers.update({'ofs': len(complete_response)})
 
         response_data = _request(name, data_headers)
+
+        # if name in ['trade history', 'ledgers']:
+        #     print()
+        #     print(len(complete_response.keys()))
+        #     print(complete_response.keys())
+            # print(json.dumps(complete_response, indent=4))
 
         if 'count' in response_data:
             total_count = response_data['count']
@@ -53,11 +65,11 @@ def request(name, data_headers={}):
             complete_response.update(response_data)
 
         if total_count:
-            progress_count = len(complete_response) * 100 // total_count
+            progress_count = len(complete_response)
         else:
             progress_count = 100
 
-        p.progress(progress_count)
+        p.progress(progress_count, total_count)
 
         if not total_count:
             break
@@ -70,7 +82,11 @@ def request(name, data_headers={}):
 
 
 def _request(name, data_headers=None):
-
+    global last_request_time
+    if last_request_time is not None:
+        if last_request_time + timedelta(1) > datetime.now():
+            time.sleep(4)
+    last_request_time = datetime.now()
     try:
         (resource, privacy_level, cachable) = resources[name]
         private_api = True if privacy_level == 'private' else False
