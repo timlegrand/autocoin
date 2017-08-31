@@ -15,7 +15,8 @@ class Progressbar():
         else:
             progress_percents = progress
         if self.progress_length:
-            sys.stdout.write(self.progress_length*'\b')
+            # sys.stdout.write(self.progress_length*'\b')
+            print()
         if not msg:
             msg = self.msg
         else:
@@ -32,12 +33,14 @@ class Progressbar():
         new_line = '\n' if progress_percents == 100 else ''
         if msg:
             msg += ' '
-        progress_line = '{:30} [{}{}{}] {}%'.format(
+        progress_line = '{:30} [{}{}{}] {:3<}%'.format(
             msg,
             progress_char_number*'=',
             current_char,
             remaining_char_number*'-',
-            str(progress_percents))
+            int(progress_percents))
+        if total:
+            progress_line += '  ({}/{})'.format(progress, total)
         self.progress_length = len(progress_line)
         sys.stdout.write(progress_line + new_line)
         sys.stdout.flush()

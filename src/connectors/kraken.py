@@ -14,4 +14,5 @@ resources = {
     'closed orders': ('ClosedOrders', 'private', False),
     'account balance': ('Balance', 'private', False),
     'ledgers': ('Ledgers', 'private', False),
+    'trade history': ('TradesHistory', 'private', False),
 }
