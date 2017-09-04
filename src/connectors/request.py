@@ -31,25 +31,25 @@ def request(name, data_headers={}):
     complete_response = {}
     progress_count = 0
     total_count = 0
+    last_progress_count = 0
+    retries = 0
 
     p = progressbar.Progressbar(msg='Downloading ' + name)
     p.progress(0)
 
     while True:
-        # print(len(complete_response), '/', total_count)
         if total_count:
-            # print('COUNTING')
             if len(complete_response) >= total_count:
                 break
+            if last_progress_count == progress_count:
+                # Iteration was unsuccessful to get data
+                retries += 1
+            if retries == 3:
+                raise Exception('Cannot retry data for ' + name)
+            last_progress_count = progress_count
             data_headers.update({'ofs': len(complete_response)})
 
         response_data = _request(name, data_headers)
-
-        # if name in ['trade history', 'ledgers']:
-        #     print()
-        #     print(len(complete_response.keys()))
-        #     print(complete_response.keys())
-            # print(json.dumps(complete_response, indent=4))
 
         if 'count' in response_data:
             total_count = response_data['count']
@@ -85,7 +85,8 @@ def _request(name, data_headers=None):
     global last_request_time
     if last_request_time is not None:
         if last_request_time + timedelta(1) > datetime.now():
-            time.sleep(4)
+            # time.sleep(4)
+            pass
     last_request_time = datetime.now()
     try:
         (resource, privacy_level, cachable) = resources[name]
